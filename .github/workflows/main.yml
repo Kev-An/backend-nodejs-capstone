@@ -29,10 +29,10 @@ jobs:
           
           find ./secondChance-backend -name app.js -exec npx eslint -c .eslintrc.js {} +
           # You can uncomment below lines to lint other files as well:
-          # find ./secondChance-backend -name auth.js -exec npx eslint -c .eslintrc.js {} +
-          # find ./secondChance-backend -name secondChanceItemsRoutes.js -exec npx eslint -c .eslintrc.js {} +
-          # find ./secondChance-backend -name searchRoutes.js -exec npx eslint -c .eslintrc.js {} +
-          # find ./secondChance-backend -name index.js -exec npx eslint -c .eslintrc.js {} +
-          # find ./sentiment -name index.js -exec npx eslint -c .eslintrc.js {} +
+          find ./secondChance-backend -name auth.js -exec npx eslint -c .eslintrc.js {} +
+          find ./secondChance-backend -name secondChanceItemsRoutes.js -exec npx eslint -c .eslintrc.js {} +
+          find ./secondChance-backend -name searchRoutes.js -exec npx eslint -c .eslintrc.js {} +
+          find ./secondChance-backend -name index.js -exec npx eslint -c .eslintrc.js {} +
+          find ./sentiment -name index.js -exec npx eslint -c .eslintrc.js {} +
 
           echo "✅ ESLint completed successfully"
