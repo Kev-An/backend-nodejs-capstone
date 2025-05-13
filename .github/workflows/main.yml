@@ -1,27 +1,38 @@
-name: 'CI/CD'
+name: CI/CD
+
 on:
   push:
-    branches: [master, main]
+    branches: [main, master]
   pull_request:
-    branches: [master, main]
+    branches: [main, master]
+
 jobs:
   lint_js:
-      name: Lint JavaScript Files
-      runs-on: ubuntu-latest
-      steps:
+    name: Lint JavaScript Files
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Install Node.js
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
-      - name: Install and Run Linter
+        with:
+          node-version: '20'  # Or whatever version your project uses
+
+      - name: Install Dependencies and Lint
         run: |
-          # This command finds all JavaScript files recursively and runs JSHint on them
           npm init -y
-          npm install eslint eslint-config-standard eslint@^8.0.1 eslint-plugin-import@^2.25.2 eslint-plugin-n@^16.0.0  eslint-plugin-promise@^6.0.0
-          find ./secondChance-backend -name app.js -exec ./node_modules/.bin/eslint -c .eslintrc.js {} +
-          # find ./secondChance-backend -name auth.js -exec ./node_modules/.bin/eslint -c .eslintrc.js {} +
-          # find ./secondChance-backend -name secondChanceItemsRoutes.js -exec ./node_modules/.bin/eslint -c .eslintrc.js {} +
-          # find ./secondChance-backend -name searchRoutes.js -exec ./node_modules/.bin/eslint -c .eslintrc.js {} +
-          # find ./secondChance-backend -name index.js -exec ./node_modules/.bin/eslint -c .eslintrc.js {} +
-          # find ./sentiment -name index.js -exec ./node_modules/.bin/eslint -c .eslintrc.js {} +
-          echo "Linted all the js files successfully"
+          npm install --save-dev eslint eslint-config-standard eslint@^8.0.1 eslint-plugin-import@^2.25.2 eslint-plugin-n@^16.0.0 eslint-plugin-promise@^6.0.0
+          
+          echo "Running ESLint on selected files..."
+          
+          find ./secondChance-backend -name app.js -exec npx eslint -c .eslintrc.js {} +
+          # You can uncomment below lines to lint other files as well:
+          # find ./secondChance-backend -name auth.js -exec npx eslint -c .eslintrc.js {} +
+          # find ./secondChance-backend -name secondChanceItemsRoutes.js -exec npx eslint -c .eslintrc.js {} +
+          # find ./secondChance-backend -name searchRoutes.js -exec npx eslint -c .eslintrc.js {} +
+          # find ./secondChance-backend -name index.js -exec npx eslint -c .eslintrc.js {} +
+          # find ./sentiment -name index.js -exec npx eslint -c .eslintrc.js {} +
+
+          echo "✅ ESLint completed successfully"
