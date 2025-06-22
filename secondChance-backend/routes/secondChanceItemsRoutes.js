@@ -26,70 +26,151 @@ const upload = multer({ storage: storage });
 router.get('/', async (req, res, next) => {
     logger.info('/ called');
     try {
-        //Step 2: task 1 - insert code here
-        //Step 2: task 2 - insert code here
-        //Step 2: task 3 - insert code here
-        //Step 2: task 4 - insert code here
+        // Step 2: Task 1 - Retrieve the database connection from db.js and store in db
+        const db = await connectToDatabase();
 
+        // Step 2: Task 2 - Use the collection() method to retrieve the secondChanceItems collection
         const collection = db.collection("secondChanceItems");
+
+        // Step 2: Task 3 - Fetch all items using find(). Chain with toArray() to convert to a JSON array
         const secondChanceItems = await collection.find({}).toArray();
+
+        // Step 2: Task 4 - Return the secondChanceItems using res.json()
         res.json(secondChanceItems);
     } catch (e) {
-        logger.console.error('oops something went wrong', e)
+        logger.console.error('oops something went wrong', e);
         next(e);
     }
 });
 
-// Add a new item
-router.post('/', {Step 3: Task 6 insert code here}, async(req, res,next) => {
-    try {
 
-        //Step 3: task 1 - insert code here
-        //Step 3: task 2 - insert code here
-        //Step 3: task 3 - insert code here
-        //Step 3: task 4 - insert code here
-        //Step 3: task 5 - insert code here
-        res.status(201).json(secondChanceItem.ops[0]);
+// Add a new item
+// Add a new item
+router.post('/', upload.single('image'), async (req, res, next) => {
+    try {
+        // Task 1: Retrieve the database connection from db.js
+        const db = await connectToDatabase();
+
+        // Task 2: Use the collection() method to retrieve the secondChanceItems collection
+        const collection = db.collection("secondChanceItems");
+
+        // Task 3: Create a new secondChanceItem from the request body
+        const newItem = req.body;
+
+        // Task 4: Get the last id, increment by 1, and set it to the new secondChanceItem
+        const lastItem = await collection.find().sort({ id: -1 }).limit(1).toArray();
+        const newId = lastItem.length ? lastItem[0].id + 1 : 1;
+        newItem.id = newId;
+
+        // Task 5: Set the current date in the new item
+        newItem.date = new Date();
+
+        // Task 6: Add the secondChanceItem to the database
+        const result = await collection.insertOne(newItem);
+        if (req.file) {
+            newItem.image = req.file.filename;
+            await collection.updateOne({ _id: result.insertedId }, { $set: { image: req.file.filename } });
+        }
+
+        res.status(201).json(result.ops ? result.ops[0] : newItem);
     } catch (e) {
         next(e);
     }
 });
 
+
+// Get a single secondChanceItem by ID
 // Get a single secondChanceItem by ID
 router.get('/:id', async (req, res, next) => {
     try {
-        //Step 4: task 1 - insert code here
-        //Step 4: task 2 - insert code here
-        //Step 4: task 3 - insert code here
-        //Step 4: task 4 - insert code here
+        // Task 1: Retrieve the database connection from db.js and store in db
+        const db = await connectToDatabase();
+
+        // Task 2: Use the collection() method to retrieve the secondChanceItems collection
+        const collection = db.collection("secondChanceItems");
+
+        // Task 3: Find a specific secondChanceItem by its ID
+        const id = parseInt(req.params.id); // assuming `id` is a number
+        const secondChanceItem = await collection.findOne({ id: id });
+
+        // Task 4: Return the item as JSON, or error if not found
+        if (!secondChanceItem) {
+            return res.status(404).json({ error: "Item not found" });
+        }
+
+        res.json(secondChanceItem);
     } catch (e) {
         next(e);
     }
 });
+
 
 // Update and existing item
-router.put('/:id', async(req, res,next) => {
+router.put('/:id', async (req, res, next) => {
     try {
-        //Step 5: task 1 - insert code here
-        //Step 5: task 2 - insert code here
-        //Step 5: task 3 - insert code here
-        //Step 5: task 4 - insert code here
-        //Step 5: task 5 - insert code here
+        // Task 1: Retrieve the database connection
+        const db = await connectToDatabase();
+
+        // Task 2: Use the collection() method to retrieve secondChanceItems
+        const collection = db.collection("secondChanceItems");
+
+        // Task 3: Check if the item exists
+        const id = parseInt(req.params.id); // assuming numeric ID
+        const existingItem = await collection.findOne({ id: id });
+
+        if (!existingItem) {
+            return res.status(404).json({ error: "Item not found" });
+        }
+
+        // Task 4: Update attributes
+        const { category, condition, age_days, description } = req.body;
+        const age_years = parseFloat((age_days / 365).toFixed(1));
+        const updatedAt = new Date();
+
+        const updateData = {
+            category,
+            condition,
+            age_days,
+            age_years,
+            description,
+            updatedAt,
+        };
+
+        await collection.updateOne({ id: id }, { $set: updateData });
+
+        // Task 5: Send confirmation
+        res.json({ message: "Item updated successfully", updatedItem: updateData });
     } catch (e) {
         next(e);
     }
 });
 
+
 // Delete an existing item
-router.delete('/:id', async(req, res,next) => {
+router.delete('/:id', async (req, res, next) => {
     try {
-        //Step 6: task 1 - insert code here
-        //Step 6: task 2 - insert code here
-        //Step 6: task 3 - insert code here
-        //Step 6: task 4 - insert code here
+        // Task 1: Retrieve the database connection
+        const db = await connectToDatabase();
+
+        // Task 2: Use the collection() method to retrieve secondChanceItems
+        const collection = db.collection("secondChanceItems");
+
+        // Task 3: Find a specific secondChanceItem by ID
+        const id = parseInt(req.params.id); // assuming id is a number
+        const existingItem = await collection.findOne({ id: id });
+
+        if (!existingItem) {
+            return res.status(404).json({ error: "Item not found" });
+        }
+
+        // Task 4: Delete the object and send a confirmation message
+        await collection.deleteOne({ id: id });
+
+        res.json({ message: "Item deleted successfully" });
     } catch (e) {
         next(e);
     }
 });
+
 
 module.exports = router;
