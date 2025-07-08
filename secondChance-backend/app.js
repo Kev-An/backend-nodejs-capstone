@@ -26,10 +26,11 @@ app.use('/api/secondchance/items', secondChanceRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/secondchance/search', searchRoutes)
 // Global Error Handler
-app.use((err, req, res) => {
-  console.error(err)
-  res.status(500).send('Internal Server Error')
-})
+app.use((err, req, res, next) => {
+    console.error(err)
+    res.status(500).send('Internal Server Error')
+  })
+  
 app.get('/', (req, res) => {
   res.send('Inside the server')
 })
