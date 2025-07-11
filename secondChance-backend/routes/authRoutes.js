@@ -5,6 +5,7 @@ const connectToDatabase = require('../models/db');
 const router = express.Router();
 const dotenv = require('dotenv');
 const pino = require('pino');  // Import Pino logger
+const { body, validationResult } = require('express-validator');
 dotenv.config();
 
 const logger = pino();  // Create a Pino logger instance
@@ -90,6 +91,7 @@ router.post('/login', async (req, res) => {
       }
 });
 
+
 router.put('/update', async (req, res) => {
     // Task 2: Validate the input using `validationResult` and return approiate message if there is an error.
     const errors = validationResult(req);
@@ -135,5 +137,4 @@ router.put('/update', async (req, res) => {
         return res.status(500).send("Internal Server Error");
     }
 });
-
 module.exports = router;
